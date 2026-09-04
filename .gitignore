@@ -1,0 +1,6 @@
+# Compilation files
+build/
+*.o
+*.obj
+*.out
+*.exe
