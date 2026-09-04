@@ -52,3 +52,4 @@ void init_dtm(DTM* dtm);
  */
 void free_dtm(DTM* dtm);
 
+#endif
