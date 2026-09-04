@@ -114,7 +114,110 @@ int triangulate_delaunay(DTM* dtm)
     dtm->triangles[0].p2 = st_p2;
     dtm->triangles[0].p3 = st_p3;
     dtm->triangle_count = 1;
+    
+    unsigned int real_points_count = dtm->point_count - 3;
 
-    return 1;
+    for (unsigned int i = 0; i < real_points_count; i++) {
+        Point p = dtm->points[i];
+
+        typedef struct {
+            unsigned int v1, v2;
+            int is_bad;
+        } Edge;
+
+        unsigned int edge_capacity = 64;
+        unsigned int edge_count = 0;
+        
+        Edge* edges = (Edge*)malloc(edge_capacity * sizeof(Edge));
+        if (edges == NULL) return 0;
+
+        for (unsigned int j = 0; j < dtm->triangle_count; j++) {
+            Triangle t = dtm->triangles[j];
+
+            if (is_point_in_circumcircle(p, dtm->points[t.p1], dtm->points[t.p2], dtm->points[t.p3])) {
+                unsigned int tri_edges[3][2] = {{t.p1, t.p2}, {t.p2, t.p3}, {t.p3, t.p1}};
+                
+                for (int e = 0; e < 3; e++) {
+                    
+                    if (edge_count + 3 > edge_capacity) {
+                        edge_capacity *= 2;
+                        
+                        Edge* temp_edges = (Edge*)realloc(edges, edge_capacity * sizeof(Edge));
+                        
+                        if (temp_edges == NULL) { 
+                            free(edges); 
+                            return 0;
+                        }
+
+                        edges = temp_edges;
+                    }
+
+                    edges[edge_count].v1 = tri_edges[e][0];
+                    edges[edge_count].v2 = tri_edges[e][1];
+                    edges[edge_count].is_bad = 0;
+                    edge_count++;
+                }
+
+                dtm->triangles[j] = dtm->triangles[dtm->triangle_count - 1];
+                dtm->triangle_count--;
+                j--;
+            }
+        }
+        
+        for (unsigned int e1 = 0; e1 < edge_count; e1++) {
+            for (unsigned int e2 = e1 + 1; e2 < edge_count; e2++) {
+                if ((edges[e1].v1 == edges[e2].v1 && edges[e1].v2 == edges[e2].v2) ||
+                   (edges[e1].v1 == edges[e2].v2 && edges[e1].v2 == edges[e2].v1)) {
+                    edges[e1].is_bad = 1;
+                    edges[e2].is_bad = 1;
+                }
+            }
+        }
+
+        for (unsigned int e = 0; e < edge_count; e++) {
+            if (edges[e].is_bad) {
+                continue;
+            }
+
+            if (dtm->triangle_count >= dtm->triangle_capacity) {
+                unsigned int new_tri_capacity = dtm->triangle_capacity * 2;
+                Triangle* temp_tri = (Triangle*)realloc(dtm->triangles, new_tri_capacity * sizeof(Triangle));
+                if (temp_tri == NULL) {
+                    free(edges);
+                    return 0;
+                }
+                dtm->triangles = temp_tri;
+                dtm->triangle_capacity = new_tri_capacity;
+            }
+
+            dtm->triangles[dtm->triangle_count].p1 = edges[e].v1;
+            dtm->triangles[dtm->triangle_count].p2 = edges[e].v2;
+            dtm->triangles[dtm->triangle_count].p3 = i;
+            dtm->triangle_count++;
+        }
+
+        free(edges);
+    }
+
+    unsigned int super_p1 = real_points_count;
+    unsigned int super_p2 = real_points_count + 1;
+    unsigned int super_p3 = real_points_count + 2;
+
+    for (unsigned int j = 0; j < dtm->triangle_count; j++) {
+        Triangle t = dtm->triangles[j];
+
+        if (t.p1 == super_p1 || t.p1 == super_p2 || t.p1 == super_p3 ||
+            t.p2 == super_p1 || t.p2 == super_p2 || t.p2 == super_p3 ||
+            t.p3 == super_p1 || t.p3 == super_p2 || t.p3 == super_p3) {
+            
+            dtm->triangles[j] = dtm->triangles[dtm->triangle_count - 1];
+            dtm->triangle_count--;
+            j--;
+        }
+    }
+
+    dtm->point_count = real_points_count;
+
+    return 1;    
 }
 
