@@ -1,3 +1,4 @@
+#include "viewer.h"
 #include "core.h"
 #include "csv_parser.h"
 #include "triangulation.h"
@@ -35,6 +36,11 @@ int main()
     for (unsigned int i = 0; i < limit; i++) {
         Triangle t = test_model.triangles[i];
         printf("Triangle [%u]: (%u %u %u)\n", i, t.p1, t.p2, t.p3);
+    }
+
+    printf("\nLaunching 3D Viewer\n");
+    if (!run_viewer(&test_model)) {
+        printf("Error: 3D Viewer failed to run\n");
     }
 
     free_dtm(&test_model);
