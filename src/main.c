@@ -4,14 +4,20 @@
 #include "triangulation.h"
 #include <stdio.h>
 
-int main()
+int main(int argc, char* argv[])
 {
-    printf("Starting DTM-Tools Pipeline test...\n");
+    if (argc < 2) {
+        printf("Usage: %s <path_to_csv_file>\n", argv[0]);
+        printf("Example: %s data/test_csv_file.csv\n", argv[0]);
+        return -1;
+    }
+
+    printf("Starting DTM-Tools Pipeline...\n");
 
     DTM test_model;
     init_dtm(&test_model);
 
-    const char* test_csv_file = "data/test_csv_file.csv";
+    const char* test_csv_file = argv[1];
     printf("Loading CSV file: %s\n", test_csv_file);
 
     if (!read_csv(test_csv_file, &test_model)) {
@@ -30,21 +36,13 @@ int main()
     printf("Triangulation finished successfully\n");
     printf("Total triangles generated: %u\n", test_model.triangle_count);
 
-    printf("Triangles\n");
-    unsigned int limit = (test_model.triangle_count < 5) ? test_model.triangle_count : 5;
-
-    for (unsigned int i = 0; i < limit; i++) {
-        Triangle t = test_model.triangles[i];
-        printf("Triangle [%u]: (%u %u %u)\n", i, t.p1, t.p2, t.p3);
-    }
-
-    printf("\nLaunching 3D Viewer\n");
+    printf("Launching 3D Viewer\n");
     if (!run_viewer(&test_model)) {
         printf("Error: 3D Viewer failed to run\n");
     }
 
     free_dtm(&test_model);
-    printf("Memory cleaned up. Integration pipeline test PASSED\n");
+    printf("DTM-Tools execution finished\n");
 
     return 0;
 }

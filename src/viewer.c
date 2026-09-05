@@ -71,7 +71,7 @@ int run_viewer(DTM* dtm)
     float center_y = (min_y + max_y) * 0.5f;
     float center_z = (min_z + max_z) * 0.5f;
 
-    printf("Rendering 3D scene");
+    printf("Rendering 3D scene\n");
 
     while (!glfwWindowShouldClose(window)) {
         glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
