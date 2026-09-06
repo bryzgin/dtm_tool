@@ -34,7 +34,7 @@ int run_viewer(DTM* dtm)
         return 0;
     }
     
-    GLFWwindow* window = glfwCreateWindow(800, 600, "DTM 3D Viewer", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "DTM TOOLS 3D Viewer", NULL, NULL);
     if (!window) {
         printf("Error: Failed to create GLFW window\n");
         glfwTerminate();
