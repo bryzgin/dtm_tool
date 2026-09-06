@@ -1,11 +1,12 @@
 #include "viewer.h"
+
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <math.h>
 
 
-static float rotation_x = 45.0f;
-static float rotation_z = 45.0f;
+static float rotation_x = 60.0f;
+static float rotation_z = 0.0f;
 
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -63,7 +64,7 @@ int run_viewer(DTM* dtm)
     float dz = max_z - min_z;
     float max_dim = (dx > dy) ? dx : dy;
     max_dim = (max_dim > dz) ? max_dim : dz;
-    float scale = (max_dim > 0.0001f) ? (1.2f / max_dim) : 1.0f;
+    float scale = (max_dim > 0.0001f) ? (1.5f / max_dim) : 1.0f;
     
     float z_range = (max_z - min_z > 0.0001f) ? (max_z - min_z) : 1.0f;
 
@@ -78,10 +79,11 @@ int run_viewer(DTM* dtm)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         glLoadIdentity();
+        glScalef(scale, scale, -scale);
 
-        glScalef(scale, scale, scale);
-        glRotatef(rotation_x, 1.0f, 0.0f, 0.0f);
+        glRotatef(-rotation_x, 1.0f, 0.0f, 0.0f);
         glRotatef(rotation_z, 0.0f, 0.0f, 1.0f);
+
         glTranslatef(-center_x, -center_y, -center_z);
 
         glBegin(GL_TRIANGLES);
